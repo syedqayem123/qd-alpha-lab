@@ -11,18 +11,31 @@ from .report import (
     write_daily_returns,
     write_metrics,
     write_positions,
-    write_report,
     write_research_summary,
+    write_report,
     write_sweep_results,
+    write_time_series,
+    write_walkforward_splits,
 )
 from .research import run_strategy_sweep
 from .strategy import available_strategies
+from .walkforward import run_walkforward
 
 
 def _write_backtest_artifacts(results: dict[str, object], output_dir: Path, title: str) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     write_metrics(results["metrics"], output_dir)
     write_daily_returns(results["daily_returns"], output_dir)
+    write_daily_returns(results["benchmark_returns"], output_dir, filename="benchmark_returns.csv", column_name="benchmark_return")
+    write_time_series(results["equity_curve"], output_dir, filename="equity_curve.csv", value_name="equity")
+    write_time_series(
+        results["benchmark_equity_curve"],
+        output_dir,
+        filename="benchmark_equity_curve.csv",
+        value_name="benchmark_equity",
+    )
+    write_time_series(results["drawdown_series"], output_dir, filename="drawdown_series.csv", value_name="drawdown")
+    write_time_series(results["rolling_sharpe"], output_dir, filename="rolling_sharpe.csv", value_name="rolling_sharpe")
     write_positions(results["positions"], output_dir)
     write_report(results["metrics"], output_dir, title=title)
 
@@ -68,6 +81,21 @@ def run_research(csv_path: Path | None, output_dir: Path) -> None:
     print(f"Research sweep artifacts written to {output_dir}")
 
 
+def run_walkforward_command(csv_path: Path | None, output_dir: Path) -> None:
+    market_data = load_market_data_from_csv(csv_path) if csv_path else generate_market_data()
+    results = run_walkforward(market_data)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    write_metrics(results["summary_metrics"], output_dir)
+    write_walkforward_splits(results["splits"], output_dir)
+    write_daily_returns(
+        results["test_returns"],
+        output_dir,
+        filename="walkforward_returns.csv",
+        column_name="walkforward_return",
+    )
+    print(f"Walk-forward artifacts written to {output_dir}")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="QD Alpha Lab CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -109,6 +137,20 @@ def build_parser() -> argparse.ArgumentParser:
         help="Directory where research artifacts should be written",
     )
 
+    walkforward_parser = subparsers.add_parser("walkforward", help="Run walk-forward testing")
+    walkforward_parser.add_argument(
+        "--csv-path",
+        type=Path,
+        default=None,
+        help="Optional CSV price file. If omitted, synthetic data is used.",
+    )
+    walkforward_parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("outputs/walkforward"),
+        help="Directory where walk-forward artifacts should be written",
+    )
+
     return parser
 
 
@@ -121,6 +163,8 @@ def main() -> None:
         run_csv_backtest(args.csv_path, args.output_dir, args.strategy)
     elif args.command == "research":
         run_research(args.csv_path, args.output_dir)
+    elif args.command == "walkforward":
+        run_walkforward_command(args.csv_path, args.output_dir)
 
 
 if __name__ == "__main__":

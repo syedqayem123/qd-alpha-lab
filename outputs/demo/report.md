@@ -1,24 +1,32 @@
-# QD Alpha Lab Backtest Report
+# QD Alpha Lab Demo Report
 
 ## Summary
 
-This report was generated from a deterministic multi-asset long-short simulation.
-The demo portfolio uses a momentum alpha with inverse-volatility scaling, while the codebase
-also includes a mean-reversion prototype for signal research and extension.
-Transaction costs are charged on each rebalance.
+This report was generated from a multi-asset long-short simulation or CSV-backed price universe.
+The engine includes benchmark comparison, turnover-aware transaction costs, and position-level
+risk controls such as gross exposure caps, turnover throttling, and volatility targeting.
 
 ## Metrics
 
-- **annualized_return**: 0.1437
-- **annualized_volatility**: 0.1201
-- **sharpe_ratio**: 1.1782
-- **max_drawdown**: -0.0975
-- **win_rate**: 0.4661
-- **average_turnover**: 0.3187
-- **days**: 251
+- **strategy_name**: momentum
+- **benchmark_name**: equal_weight_universe
+- **annualized_return**: 0.154
+- **annualized_volatility**: 0.1141
+- **sharpe_ratio**: 1.3129
+- **max_drawdown**: -0.0674
+- **win_rate**: 0.5198
+- **average_turnover**: 0.2677
+- **average_gross_exposure**: 0.9779
+- **benchmark_annualized_return**: 0.2947
+- **benchmark_sharpe_ratio**: 1.8656
+- **alpha_vs_benchmark**: -0.1407
+- **beta_vs_benchmark**: 0.0336
+- **correlation_vs_benchmark**: 0.0424
+- **information_ratio**: -0.6615
+- **days**: 227
 
 ## Interpretation
 
-- Positive Sharpe indicates the alpha signal was additive after costs.
-- Max drawdown captures the worst peak-to-trough loss path.
-- Average turnover shows how aggressively the portfolio trades.
+- Alpha vs benchmark shows whether the strategy outperformed a simple equal-weight universe baseline.
+- Beta and correlation indicate whether the strategy is truly market-neutral in practice.
+- Average turnover and gross exposure show how aggressive the risk budget is.

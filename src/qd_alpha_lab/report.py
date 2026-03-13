@@ -7,20 +7,34 @@ import json
 from pathlib import Path
 
 
-def write_metrics(metrics: dict[str, float], output_dir: Path) -> Path:
+def write_metrics(metrics: dict[str, float | int | str], output_dir: Path) -> Path:
     output_path = output_dir / "metrics.json"
     output_path.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
     return output_path
 
 
-def write_daily_returns(daily_returns: list[tuple[object, float]], output_dir: Path) -> Path:
-    output_path = output_dir / "daily_returns.csv"
+def write_daily_returns(
+    daily_returns: list[tuple[object, float]],
+    output_dir: Path,
+    filename: str = "daily_returns.csv",
+    column_name: str = "strategy_return",
+) -> Path:
+    output_path = output_dir / filename
     with output_path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.writer(handle)
-        writer.writerow(["trade_date", "strategy_return"])
+        writer.writerow(["trade_date", column_name])
         for trade_date, value in daily_returns:
             writer.writerow([trade_date.isoformat(), round(value, 8)])
     return output_path
+
+
+def write_time_series(
+    rows: list[tuple[object, float]],
+    output_dir: Path,
+    filename: str,
+    value_name: str,
+) -> Path:
+    return write_daily_returns(rows, output_dir, filename=filename, column_name=value_name)
 
 
 def write_positions(positions: list[tuple[object, dict[str, float]]], output_dir: Path) -> Path:
@@ -49,6 +63,21 @@ def write_sweep_results(results: list[dict[str, float | int | str]], output_dir:
     return output_path
 
 
+def write_walkforward_splits(results: list[dict[str, float | int | str]], output_dir: Path) -> Path:
+    output_path = output_dir / "walkforward_splits.csv"
+    if not results:
+        output_path.write_text("", encoding="utf-8")
+        return output_path
+
+    fields = list(results[0].keys())
+    with output_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer.writeheader()
+        for row in results:
+            writer.writerow(row)
+    return output_path
+
+
 def write_report(metrics: dict[str, float | str], output_dir: Path, title: str = "QD Alpha Lab Backtest Report") -> Path:
     output_path = output_dir / "report.md"
     lines = [
@@ -57,9 +86,8 @@ def write_report(metrics: dict[str, float | str], output_dir: Path, title: str =
         "## Summary",
         "",
         "This report was generated from a multi-asset long-short simulation or CSV-backed price universe.",
-        "The demo portfolio uses a momentum alpha with inverse-volatility scaling, while the codebase",
-        "also includes mean-reversion and hybrid signal variants for research comparison.",
-        "Transaction costs are charged on each rebalance.",
+        "The engine includes benchmark comparison, turnover-aware transaction costs, and position-level",
+        "risk controls such as gross exposure caps, turnover throttling, and volatility targeting.",
         "",
         "## Metrics",
         "",
@@ -72,9 +100,9 @@ def write_report(metrics: dict[str, float | str], output_dir: Path, title: str =
             "",
             "## Interpretation",
             "",
-            "- Positive Sharpe indicates the alpha signal was additive after costs.",
-            "- Max drawdown captures the worst peak-to-trough loss path.",
-            "- Average turnover shows how aggressively the portfolio trades.",
+            "- Alpha vs benchmark shows whether the strategy outperformed a simple equal-weight universe baseline.",
+            "- Beta and correlation indicate whether the strategy is truly market-neutral in practice.",
+            "- Average turnover and gross exposure show how aggressive the risk budget is.",
         ]
     )
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -93,7 +121,7 @@ def write_research_summary(results: list[dict[str, float | int | str]], output_d
         lines.append(
             f"- `{row['strategy_name']}` with {row['max_names_per_side']} names/side, "
             f"{row['transaction_cost_bps']} bps cost, Sharpe {row['sharpe_ratio']}, "
-            f"return {row['annualized_return']}"
+            f"alpha {row['alpha_vs_benchmark']}"
         )
     output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return output_path

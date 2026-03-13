@@ -5,6 +5,8 @@
 - synthetic multi-asset market simulation for reproducible demos
 - real CSV ingestion for NSE or US equity-style daily close data
 - research sweeps across multiple alpha strategies and transaction-cost assumptions
+- benchmark comparison and practical portfolio risk controls
+- walk-forward testing for out-of-sample strategy selection
 - optional Streamlit dashboard for presenting results visually
 
 ## Why this is a strong shortlist project
@@ -55,6 +57,15 @@ The backtester supports three ranking-based market-neutral strategies:
 
 Each day, the engine ranks assets cross-sectionally, goes long the strongest names, shorts the weakest names, and charges transaction costs based on turnover.
 
+## Research Features
+
+The project now includes the pieces that make a quant backtest more believable in interviews:
+
+- benchmark comparison versus an equal-weight universe baseline
+- risk controls through max position caps, turnover throttling, and volatility targeting
+- walk-forward testing that selects the best strategy on a training window and evaluates it out of sample
+- dashboard views for equity curve, drawdown, rolling Sharpe, and benchmark-relative behavior
+
 ## 1. Run the Demo
 
 ```bash
@@ -65,6 +76,10 @@ This generates:
 
 - `metrics.json`
 - `daily_returns.csv`
+- `benchmark_returns.csv`
+- `equity_curve.csv`
+- `drawdown_series.csv`
+- `rolling_sharpe.csv`
 - `positions.csv`
 - `report.md`
 
@@ -92,7 +107,19 @@ This compares strategies, names-per-side, and cost assumptions, then writes:
 - `strategy_sweep.csv`
 - `research_summary.md`
 
-## 4. Launch the Dashboard
+## 4. Run Walk-Forward Testing
+
+```bash
+PYTHONPATH=src python3 -m qd_alpha_lab.cli walkforward --csv-path data/sample_prices.csv --output-dir outputs/walkforward
+```
+
+This writes:
+
+- `metrics.json`
+- `walkforward_splits.csv`
+- `walkforward_returns.csv`
+
+## 5. Launch the Dashboard
 
 The dashboard is optional so the core project stays lightweight.
 
@@ -101,7 +128,7 @@ pip install ".[dashboard]"
 streamlit run src/qd_alpha_lab/dashboard.py
 ```
 
-Point the app at `outputs/demo`, `outputs/csv_backtest`, or `outputs/research` to inspect the generated artifacts.
+Point the app at `outputs/demo`, `outputs/csv_backtest`, `outputs/research`, or `outputs/walkforward` to inspect the generated artifacts.
 
 ## Run Tests
 
@@ -112,13 +139,15 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 ## Suggested Resume Bullets
 
 - Built a Python-based quantitative research platform for market-neutral long-short strategies, including CSV data ingestion, signal generation, portfolio construction, transaction cost modeling, and performance reporting.
-- Implemented momentum, mean-reversion, and hybrid alpha models with volatility scaling, and compared them through parameter sweeps using Sharpe ratio, CAGR, drawdown, turnover, and hit-rate analytics.
-- Developed a reproducible CLI and Streamlit workflow that generates backtest artifacts and research summaries from both synthetic and real price data.
+- Implemented momentum, mean-reversion, and hybrid alpha models with volatility scaling, benchmark comparison, and risk controls such as turnover caps and exposure throttling.
+- Developed a reproducible CLI and Streamlit workflow that generates backtest artifacts, walk-forward validation outputs, and research summaries from both synthetic and real price data.
 
 ## How to talk about it in interviews
 
 - explain why cross-sectional ranking is common in stat-arb and equities strategies
 - discuss how transaction costs and turnover can destroy naive alpha
+- explain why benchmark-relative evaluation is stronger than quoting absolute returns alone
+- discuss how walk-forward testing reduces overfitting risk
 - mention why you built both reproducible simulation and real CSV ingestion
 - describe how the research sweep helps choose a strategy instead of curve-fitting one setup
 - point out that the dashboard is for communicating results to PMs, researchers, or interviewers

@@ -1,0 +1,7 @@
+{
+  "num_splits": 2,
+  "walkforward_days": 40,
+  "walkforward_annualized_return": 0.1904,
+  "walkforward_sharpe_ratio": 18.3965,
+  "walkforward_max_drawdown": -0.0011
+}

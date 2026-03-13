@@ -11,6 +11,7 @@ class ResearchTestCase(unittest.TestCase):
         rows = run_strategy_sweep(market_data, transaction_costs=[5.0], names_per_side=[1, 2])
         self.assertEqual(len(rows), 6)
         self.assertGreaterEqual(rows[0]["sharpe_ratio"], rows[-1]["sharpe_ratio"])
+        self.assertIn("alpha_vs_benchmark", rows[0])
 
 
 if __name__ == "__main__":
