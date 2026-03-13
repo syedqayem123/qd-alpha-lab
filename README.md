@@ -7,6 +7,22 @@
 - research sweeps across multiple alpha strategies and transaction-cost assumptions
 - optional Streamlit dashboard for presenting results visually
 
+## Recruiter Snapshot
+
+This repository is designed to answer the shortlist question quickly: can this candidate write clean code and reason like a junior quant developer?
+
+- built a reusable backtesting and research toolkit instead of a one-off notebook
+- handled both synthetic and real CSV market data workflows
+- compared multiple alpha ideas under transaction costs and turnover constraints
+- produced artifacts that are easy for recruiters, interviewers, and hiring managers to inspect
+
+If you are reviewing this project for hiring, start with:
+
+1. [README.md](/Users/s0m0zg3/personal/trading/README.md) for the project scope and commands
+2. [src/qd_alpha_lab/backtest.py](/Users/s0m0zg3/personal/trading/src/qd_alpha_lab/backtest.py) for the engine design
+3. [src/qd_alpha_lab/research.py](/Users/s0m0zg3/personal/trading/src/qd_alpha_lab/research.py) for strategy comparison logic
+4. [outputs/research/strategy_sweep.csv](/Users/s0m0zg3/personal/trading/outputs/research/strategy_sweep.csv) for sample research output
+
 ## Why this is a strong shortlist project
 
 This project demonstrates the mix recruiters usually want from a fresher quant developer:
@@ -17,6 +33,16 @@ This project demonstrates the mix recruiters usually want from a fresher quant d
 - multiple strategy variants instead of a single hard-coded idea
 - test coverage on quant logic and data loading
 - recruiter-friendly outputs in CSV, JSON, and Markdown
+
+## What Makes It Resume-Ready
+
+Most entry-level quant projects stop at a notebook with a single signal and a chart. This one is stronger because it shows software engineering discipline around the research:
+
+- modular code instead of notebook-only logic
+- explicit transaction cost handling instead of gross returns only
+- multi-strategy comparison instead of claiming one idea always works
+- test coverage around core portfolio and data-loading behavior
+- a presentation layer through Markdown reports and an optional dashboard
 
 ## Project Structure
 

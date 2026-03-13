@@ -1,0 +1,17 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+.venv/
+venv/
+env/
+.env
+.idea/
+.vscode/
+dist/
+build/
+*.egg-info/
+
+# Generated research artifacts
+outputs/
